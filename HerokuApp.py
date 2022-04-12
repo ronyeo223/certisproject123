@@ -1,12 +1,13 @@
+from re import X
 from flask import Flask, render_template, flash, request
 import paho.mqtt.client as mqtt
 
 
 app = Flask(__name__)
 
-direction = {"dire1" : "Forward",
+direction = {"dire1" : "Up",
              "dire2" : "Left",
-             "dire3" : "Back",
+             "dire3" : "Down",
              "dire4" : "Right"}
 
 
@@ -28,20 +29,25 @@ client.connect("driver.cloudmqtt.com", 18626, 60)
 
 @app.route("/")
 def route():
+   client.publish("$SYS/robot", "Dock", qos = 1)
    return render_template("index.html")
 
 
 @app.route("/<string:dire>")
 def start(dire):
+   y = 0
    client.loop_start
-   if dire == "Forward":
-      client.publish("$SYS/direction", "Forward", qos = 1)
+   if dire == "Up":
+      x = x + 25
+      p = x + 25
+      client.publish("$SYS/direction", "Up", qos = 1)
+      client.publish("$SYS/robot", p)
    
    elif dire == "Left":
       client.publish("$SYS/direction", "Left", qos = 1)
 
-   elif dire == "Back":
-      client.publish("$SYS/direction", "Back", qos = 1)
+   elif dire == "Down":
+      client.publish("$SYS/direction", "Down", qos = 1)
 
    elif dire == "Right":
       client.publish("$SYS/direction", "Right", qos = 1)
