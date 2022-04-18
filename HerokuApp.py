@@ -1,4 +1,3 @@
-from re import X
 from flask import Flask, render_template, flash, request
 import paho.mqtt.client as mqtt
 
