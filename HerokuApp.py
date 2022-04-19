@@ -1,8 +1,13 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template
 import paho.mqtt.client as mqtt
 
 
 app = Flask(__name__)
+
+global y
+y = 166
+global x
+x = 350
 
 direction = {"dire1" : "Up",
              "dire2" : "Left",
@@ -18,40 +23,55 @@ def on_message(client, userdata, msg):
 
 def on_publish(client, userdata, mid):
     print("mid: "+str(mid))
+
+def on_subscribe(client, userdata, mid, granted_qos):
+    print("Subscribed: " + str(mid) + " " + str(granted_qos))
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 client.on_publish = on_publish 
-client.username_pw_set("esznwayl","gqXdqVuApw95")
-client.connect("driver.cloudmqtt.com", 18626, 60)
+client.on_subscribe = on_subscribe
+client.connect("broker.emqx.io", 1883)
 
 
 @app.route("/")
 def route():
-   client.publish("$SYS/robot", "Dock", qos = 1)
+   client.publish("test/robot", "Dock", qos = 1)
+   client.subscribe("test/robotloca", qos = 1)
+   client.message_callback("robotloca")
    return render_template("index.html")
 
 
 @app.route("/<string:dire>")
 def start(dire):
-   y = 0
+   global y
+   global x
+   n=25
+   client.subscribe("test/robotloca")
    client.loop_start
    if dire == "Up":
-      x = x + 25
-      p = x + 25
-      client.publish("$SYS/direction", "Up", qos = 1)
-      client.publish("$SYS/robot", p)
-   
+      y += n
+      client.publish("test/direction", "Up", qos = 1)
+      client.publish("test/robot",f"x = {x}, y = {y}" )
+
    elif dire == "Left":
-      client.publish("$SYS/direction", "Left", qos = 1)
+      x -= n
+      client.publish("test/direction", "Left", qos = 1)
+      client.publish("test/robot",f"x = {x}, y = {y}" )
 
    elif dire == "Down":
-      client.publish("$SYS/direction", "Down", qos = 1)
+      y -= n
+      client.publish("test/direction", "Down", qos = 1)
+      client.publish("test/robot",f"x = {x}, y = {y}" )
 
    elif dire == "Right":
-      client.publish("$SYS/direction", "Right", qos = 1)
+      x += n
+      client.publish("test/direction", "Right", qos = 1)
+      client.publish("test/robot",f"x = {x}, y = {y}" )
+
 
    client.loop_stop
+
    return render_template("index.html")
 
 
