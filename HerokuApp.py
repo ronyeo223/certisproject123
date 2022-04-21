@@ -4,10 +4,6 @@ import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
 
-global y
-y = 166
-global x
-x = 350
 
 direction = {"dire1" : "Up",
              "dire2" : "Left",
@@ -21,7 +17,6 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
-
 def on_subscribe(client, userdata, mid, granted_qos):
     print("Subscribed: " + str(mid) + " " + str(granted_qos))
 
@@ -29,8 +24,6 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_subscribe = on_subscribe
 client.connect("broker.emqx.io", 1883)
-
-
 
 
 @app.route("/")
@@ -74,6 +67,9 @@ def start(dire):
 
 
 if __name__ == '__main__':
-      client.on_message = on_message
-      app.run(debug = True, host = "0.0.0.0")
-
+   client = mqtt.Client()
+   client.on_connect = on_connect
+   client.on_subscribe = on_subscribe
+   client.connect("broker.emqx.io", 1883)
+   client.on_message = on_message
+   app.run(debug = True, host = "0.0.0.0")

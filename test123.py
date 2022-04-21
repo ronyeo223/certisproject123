@@ -49,7 +49,4 @@ client.connect("broker.emqx.io", 1883)
 # handles reconnecting.
 # Other loop*() functions are available that give a threaded interface and a
 # manual interface.
- 
-
-if __name__ == "__main__":
-    client.loop_forever
+client.loop_forever
